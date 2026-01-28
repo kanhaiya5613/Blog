@@ -1,4 +1,4 @@
-import conf from '../conf/conf.js'
+import conf from '../conf/conf.js';
 import { Client, Account, ID } from "appwrite";
 
 export class AuthService {
@@ -16,20 +16,21 @@ export class AuthService {
         try {
             const userAccount = await this.account.create(ID.unique(), email, password, name);
             if (userAccount) {
-                // Return the login promise if account creation is successful
                 return this.login({ email, password });
             }
             return userAccount;
         } catch (error) {
+            console.error("Appwrite service :: createAccount :: error", error);
             throw error;
         }
     }
 
     async login({ email, password }) {
         try {
-            // Fix: Pass parameters individually, not as an object
+            // Appwrite 14+ uses createEmailPasswordSession
             return await this.account.createEmailPasswordSession(email, password);
         } catch (error) {
+            console.error("Appwrite service :: login :: error", error);
             throw error;
         }
     }
@@ -38,7 +39,8 @@ export class AuthService {
         try {
             return await this.account.get();
         } catch (error) {
-            // Silently fail if no session exists (common case)
+            // If it's a 401, it just means no one is logged in. 
+            // We return null so the frontend knows to show the login page.
             if (error.code !== 401) {
                 console.log("Appwrite service :: getCurrentUser :: error ", error);
             }
@@ -48,14 +50,13 @@ export class AuthService {
 
     async logout() {
         try {
-            await this.account.deleteSessions();
+            // Deletes the current session
+            await this.account.deleteSession('current');
         } catch (error) {
             console.log("Appwrite service :: logout :: error ", error);
         }
     }
 }
 
-// Fix: Use a lowercase name for the instance to avoid naming collision
 const authService = new AuthService();
-
 export default authService;
