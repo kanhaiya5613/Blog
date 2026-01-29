@@ -5,7 +5,7 @@ import Logo from "./Logo"
 import LogoutBtn from "./LogoutBtn/LogoutBtn";
 import RTE from "./RTE";
 import SignUp from "./SignUp"
-import  Login  from "./Login";
+import  Login  from "./Login.jsx";
 import  PostForm from "./post-form/PostForm"
 import PostCard from "./PostCard";
 import AuthLayout from "./AuthLayout";
