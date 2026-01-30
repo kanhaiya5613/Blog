@@ -1,5 +1,6 @@
 import conf from "../conf/conf";
 import { Client, TablesDB, Storage, ID } from "appwrite";
+import { login } from "../store/authSlice";
 
 class Service {
   client = new Client();
@@ -11,93 +12,76 @@ class Service {
       .setEndpoint(conf.appwriteUrl)
       .setProject(conf.appwriteProjectId);
 
-    // IMPORTANT
     this.tablesDB = new TablesDB(this.client);
     this.storage = new Storage(this.client);
   }
 
-  async createPost({ title, slug, content, featuredImage, status, userId }) {
-  try {
+  async createPost(data) {
     return await this.tablesDB.createRow(
       conf.appwriteDatabaseId,
       conf.appwriteCollectionId,
-      ID.unique(),   
-      {
-        title,
-        slug,        
-        content,
-        featuredImage,
-        status,
-        userId,
-      }
+      ID.unique(),
+      data
     );
-  } catch (error) {
-    console.log("Error creating post:", error);
-    throw error;
   }
-}
-
 
   async updatePost(id, data) {
-    try {
-      return await this.tablesDB.updateRow(
-        conf.appwriteDatabaseId,
-        conf.appwriteCollectionId,
-        id,
-        data
-      );
-    } catch (error) {
-      console.log("Error updating post:", error);
-    }
+    return await this.tablesDB.updateRow(
+      conf.appwriteDatabaseId,
+      conf.appwriteCollectionId,
+      id,
+      data
+    );
   }
 
-  async getPosts() {
-    try {
-      const res = await this.tablesDB.listRows(
-        conf.appwriteDatabaseId,
-        conf.appwriteCollectionId
-      );
-      return res.rows;
-    } catch (error) {
-      console.log("Error getting posts:", error);
-    }
+  async deletePost(id) {
+    return await this.tablesDB.deleteRow(
+      conf.appwriteDatabaseId,
+      conf.appwriteCollectionId,
+      id
+    );
   }
 
   async getPost(id) {
-    try {
-      return await this.tablesDB.getRow(
-        conf.appwriteDatabaseId,
-        conf.appwriteCollectionId,
-        id
-      );
-    } catch (error) {
-      console.log("Error getting post:", error);
-    }
+    return await this.tablesDB.getRow(
+      conf.appwriteDatabaseId,
+      conf.appwriteCollectionId,
+      id
+    );
+  }
+
+  async getPosts() {
+    const res = await this.tablesDB.listRows(
+      conf.appwriteDatabaseId,
+      conf.appwriteCollectionId
+    );
+    return res.rows;
   }
 
   async uploadFile(file) {
-    try {
-      return await this.storage.createFile(
-        conf.appwriteBucketId,
-        ID.unique(),
-        file
-      );
-    } catch (error) {
-      console.log("File upload error:", error);
-    }
+    return await this.storage.createFile(
+      conf.appwriteBucketId,
+      ID.unique(),
+      file,
+    );
   }
 
   async deleteFile(fileId) {
-    try {
-      return await this.storage.deleteFile(conf.appwriteBucketId, fileId);
-    } catch (error) {
-      console.log("File delete error:", error);
-    }
+    return await this.storage.deleteFile(conf.appwriteBucketId, fileId);
   }
+  
 
   getFilePreview(fileId) {
-    return this.storage.getFilePreview(conf.appwriteBucketId, fileId);
-  }
+  if (!fileId) return "";
+  //console.log(this.storage.getFileView(conf.appwriteBucketId,fileId));
+  
+  return this.storage.getFileView(
+    conf.appwriteBucketId,
+    fileId
+  );
+}
+
+
 }
 
 const service = new Service();

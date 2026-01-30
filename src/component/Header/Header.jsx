@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Container, Logo, LogoutBtn } from "../index.js";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,7 +6,11 @@ import { Link, useNavigate } from "react-router-dom";
 export default function Header() {
   const authStatus = useSelector((state) => state.auth.status);
   const navigate = useNavigate();
-
+  useEffect(()=>{
+    if(authStatus){
+              navigate("/all-posts")
+            }
+  },[])
   const navItems = [
     {
       name: "Home",
@@ -57,18 +61,18 @@ export default function Header() {
                       onClick={() => navigate(item.slug)}
                       className="inline-block px-6 py-2 duration-200 hover:bg-blue-100 rounded-full"
                     >
-                      
-                      
                       {item.name}
                     </button>
                   </li>
+                  
                 )
             )}
-
+            
             {authStatus && (
               <li key="logout">
                 <LogoutBtn />
               </li>
+              
             )}
           </ul>
         </nav>

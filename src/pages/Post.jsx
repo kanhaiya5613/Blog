@@ -7,39 +7,56 @@ import { useSelector } from "react-redux";
 
 export default function Post() {
   const [post, setPost] = useState(null);
-  const { id } = useParams();
+  const { id } = useParams(); // MUST match /post/:id
   const navigate = useNavigate();
 
   const userData = useSelector((state) => state.auth.userData);
 
+  // Change "userId" if your DB field name is different
   const isAuthor = post && userData ? post.userId === userData.$id : false;
 
   useEffect(() => {
-    if (id) {
-      appwriteService.getPost(id).then((post) => {
-        if (post) setPost(post);
-        else navigate("/");
-      });
-    } else navigate("/");
-  }, [id, navigate]);
-
-  const deletePost = async () => {
-    const status = await appwriteService.deletePost(post.$id);
-    if (status) {
-      await appwriteService.deleteFile(post.featuredImage);
+    if (!id) {
       navigate("/");
+      return;
     }
-  };
 
-  return post ? (
+    appwriteService
+      .getPost(id)
+      .then((data) => {
+        if (data) setPost(data);
+        else navigate("/");
+      })
+      .catch(() => navigate("/"));
+  }, [id, navigate]);
+  console.log(post);
+  
+  const deletePost = async () => {
+  try {
+    await appwriteService.deletePost(post.$id);
+    await appwriteService.deleteFile(post.featuredImage);
+    navigate("/");
+  } catch (err) {
+    console.log("Delete error:", err);
+  }
+};
+
+
+  if (!post) return null;
+  
+  return (
     <div className="py-8">
       <Container>
         <div className="w-full flex justify-center mb-4 relative border rounded-xl p-2">
-          <img
-            src={appwriteService.getFilePreview(post.featuredImage)}
-            alt={post.title}
-            className="rounded-xl"
-          />
+          
+          {post?.featuredImage && (
+            <img
+              src={appwriteService.getFilePreview(post.featuredImage)}
+              alt={post.title || "Post image"}
+              loading="lazy"
+              className="rounded-xl"
+            />
+          )}
 
           {isAuthor && (
             <div className="absolute right-6 top-6">
@@ -48,6 +65,7 @@ export default function Post() {
                   Edit
                 </Button>
               </Link>
+
               <Button bgColor="bg-red-500" onClick={deletePost}>
                 Delete
               </Button>
@@ -56,11 +74,15 @@ export default function Post() {
         </div>
 
         <div className="w-full mb-6">
-          <h1 className="text-2xl font-bold">{post.title}</h1>
+          <h1 className="text-2xl font-bold">
+            {post.title || "Untitled"}
+          </h1>
         </div>
 
-        <div className="browser-css">{parse(post.content)}</div>
+        <div className="browser-css">
+          {parse(post.content || "")}
+        </div>
       </Container>
     </div>
-  ) : null;
+  );
 }

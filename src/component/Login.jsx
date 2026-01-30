@@ -32,7 +32,7 @@ function Login() {
       <div className="mx-auto w-full max-w-lg rounded-xl bg-white p-10 border">
 
         <div className="mb-2 flex justify-center">
-          <span className="inline-block w-full max-w-[100px]">
+          <span className="inline-block w-full max-w-100px]">
             <Logo width="100%" />
           </span>
         </div>
@@ -45,7 +45,7 @@ function Login() {
           Don&apos;t have any account?&nbsp;
           <Link
             to="/signup"
-            className="font-medium text-primary transition-all duration-200 hover:underline"
+            className="font-medium cursor-pointer text-primary transition-all duration-200 hover:underline"
           >
             Sign Up
           </Link>

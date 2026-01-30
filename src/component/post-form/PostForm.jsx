@@ -20,36 +20,48 @@ export default function PostForm({ post }) {
   const userData = useSelector((state) => state.auth.userData);
 
   const submit = async (data) => {
-    try {
-      let fileId = post?.featuredImage;
+  try {
+    let fileId = post?.featuredImage;
 
-      if (data.image?.[0]) {
-        const file = await appwriteService.uploadFile(data.image[0]);
-        if (file) {
-          fileId = file.$id;
-        }
-      }
-
-      if (post) {
-        const dbPost = await appwriteService.updatePost(post.$id, {
-          ...data,
-          featuredImage: fileId,
-        });
-
-        if (dbPost) navigate(`/post/${dbPost.$id}`);
-      } else {
-        const dbPost = await appwriteService.createPost({
-          ...data,
-          featuredImage: fileId,
-          userId: userData.$id,
-        });
-
-        if (dbPost) navigate(`/post/${dbPost.$id}`);
-      }
-    } catch (err) {
-      console.log("Post submit error:", err);
+    if (data.image?.[0]) {
+    const file = await appwriteService.uploadFile(data.image[0]);
+    
+    // Delete the old image if it exists
+    if (post && post.featuredImage) {
+        await appwriteService.deleteFile(post.featuredImage);
     }
-  };
+    
+    fileId = file.$id;
+}
+
+    const cleanData = {
+      title: data.title,
+      slug: data.slug,
+      content: data.content,
+      status: data.status,
+      featuredImage: fileId,
+      userId: userData.$id,
+    };
+
+    let dbPost;
+
+    if (post) {
+      dbPost = await appwriteService.updatePost(post.$id, cleanData);
+    } else {
+      dbPost = await appwriteService.createPost(cleanData);
+    }
+
+    console.log("DB POST:", dbPost);
+
+    navigate(`/post/${dbPost.$id || dbPost.rowId}`);
+
+  } catch (error) {
+    console.log("Post submit error:", error);
+  }
+};
+
+
+
 
   const slugTransform = useCallback((value) => {
     if (value && typeof value === "string")
