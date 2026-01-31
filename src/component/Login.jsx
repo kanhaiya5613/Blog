@@ -9,11 +9,20 @@ import { useForm } from "react-hook-form";
 function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { register, handleSubmit } = useForm();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const login = async (data) => {
     setError("");
+    setLoading(true);
+
     try {
       const session = await authService.login(data);
 
@@ -22,8 +31,16 @@ function Login() {
         if (userData) dispatch(authLogin(userData));
         navigate("/");
       }
-    } catch (error) {
-      setError(error.message);
+    } catch (err) {
+      if (err.code === 401) {
+        setError("Invalid email or password");
+      } else {
+        setError(err.message);
+      }
+
+      setTimeout(() => setError(""), 3000);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -32,7 +49,7 @@ function Login() {
       <div className="mx-auto w-full max-w-lg rounded-xl bg-white p-10 border">
 
         <div className="mb-2 flex justify-center">
-          <span className="inline-block w-full max-w-100px]">
+          <span className="inline-block w-full max-w-[100px]">
             <Logo width="100%" />
           </span>
         </div>
@@ -51,43 +68,49 @@ function Login() {
           </Link>
         </p>
 
-        {error && <p className="text-red-600 mt-8 text-center">{error}</p>}
+        {/* Backend error */}
+        {error && (
+          <div className="bg-red-100 text-red-700 px-4 py-2 rounded mt-6 text-center">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit(login)} className="mt-8">
           <div className="space-y-5">
 
             <Input
-              label="Email: "
+              label="Email"
               placeholder="Enter your email"
               type="email"
               {...register("email", {
-                required: true,
-                validate: {
-                  matchPattern: (value) =>
-                    /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
-                    "Email address must be valid",
+                required: "Email is required",
+                pattern: {
+                  value:
+                    /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+                  message: "Email address must be valid",
                 },
               })}
             />
+
+            {errors.email && (
+              <p className="text-red-600 text-sm">{errors.email.message}</p>
+            )}
 
             <Input
-              label="Password: "
-              placeholder="Enter your Password"
+              label="Password"
+              placeholder="Enter your password"
               type="password"
               {...register("password", {
-                required: true,
-                validate: {
-                  matchPattern: (value) =>
-                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
-                      value
-                    ) ||
-                    "Password must contain 8 chars, upper, lower, number & symbol",
-                },
+                required: "Password is required",
               })}
             />
 
-            <Button type="submit" className="w-full">
-              Sign In
+            {errors.password && (
+              <p className="text-red-600 text-sm">{errors.password.message}</p>
+            )}
+
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Signing in..." : "Sign In"}
             </Button>
 
           </div>
