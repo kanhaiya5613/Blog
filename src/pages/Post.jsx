@@ -7,12 +7,11 @@ import { useSelector } from "react-redux";
 
 export default function Post() {
   const [post, setPost] = useState(null);
-  const { id } = useParams(); // MUST match /post/:id
+  const { id } = useParams(); 
   const navigate = useNavigate();
 
   const userData = useSelector((state) => state.auth.userData);
 
-  // Change "userId" if your DB field name is different
   const isAuthor = post && userData ? post.userId === userData.$id : false;
 
   useEffect(() => {
@@ -29,7 +28,7 @@ export default function Post() {
       })
       .catch(() => navigate("/"));
   }, [id, navigate]);
-  console.log(post);
+  //console.log(post);
   
   const deletePost = async () => {
   try {
@@ -47,7 +46,7 @@ export default function Post() {
   return (
     <div className="py-8">
       <Container>
-        <div className="w-full flex justify-center mb-4 relative border rounded-xl p-2">
+        <div className="w-full h-screen flex justify-center mb-4 relative border rounded-xl p-2">
           
           {post?.featuredImage && (
             <img

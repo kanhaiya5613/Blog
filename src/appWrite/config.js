@@ -1,7 +1,7 @@
 import conf from "../conf/conf";
 import { Client, TablesDB, Storage, ID } from "appwrite";
 import { login } from "../store/authSlice";
-
+import { Query } from "appwrite";
 class Service {
   client = new Client();
   tablesDB;
@@ -50,14 +50,22 @@ class Service {
     );
   }
 
-  async getPosts() {
+async getPosts() {
+  try {
     const res = await this.tablesDB.listRows(
       conf.appwriteDatabaseId,
-      conf.appwriteCollectionId
+      conf.appwriteCollectionId,
+      [
+        Query.equal("status", "active") 
+      ]
     );
-    return res.rows;
+  
+    return res.rows; 
+  } catch (error) {
+    console.log("Appwrite service :: getPosts :: error", error);
+    return false;
   }
-
+}
   async uploadFile(file) {
     return await this.storage.createFile(
       conf.appwriteBucketId,

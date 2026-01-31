@@ -9,8 +9,8 @@ function PostCard({ $id: id, title, featuredImage }) {
   
   return (
     <Link to={`/post/${id}`} className="w-full block h-full">
-      <div className="w-full h-full bg-gray-100 rounded-xl p-4 hover:shadow-lg transition flex flex-col">
-                <div className="w-full aspect-video mb-4 overflow-hidden h-45 rounded-xl">
+      <div className=" h-full bg-gray-100 rounded-xl p-4 hover:shadow-lg transition flex flex-col">
+                <div className="w-full aspect-video mb-4 overflow-hidden h-60 rounded-xl">
           {featuredImage ? (
             <img
               src={appwriteService.getFilePreview(featuredImage)}
