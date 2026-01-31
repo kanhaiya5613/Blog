@@ -18,47 +18,52 @@ export default function PostForm({ post }) {
 
   const navigate = useNavigate();
   const userData = useSelector((state) => state.auth.userData);
+  
+const submit = async (data) => {
+    try {
+      // 1. Safety Check: Ensure userData exists before proceeding
+      if (!userData) {
+        console.error("Submit failed: No userData found. Are you logged in?");
+        return;
+      }
 
-  const submit = async (data) => {
-  try {
-    let fileId = post?.featuredImage;
+      let fileId = post?.featuredImage;
 
-    if (data.image?.[0]) {
-    const file = await appwriteService.uploadFile(data.image[0]);
-    
-    // Delete the old image if it exists
-    if (post && post.featuredImage) {
-        await appwriteService.deleteFile(post.featuredImage);
+      if (data.image?.[0]) {
+        const file = await appwriteService.uploadFile(data.image[0]);
+        if (file) {
+          if (post && post.featuredImage) {
+            await appwriteService.deleteFile(post.featuredImage);
+          }
+          fileId = file.$id;
+        }
+      }
+
+      const cleanData = {
+        title: data.title,
+        slug: data.slug,
+        content: data.content,
+        status: data.status,
+        featuredImage: fileId,
+        userId: userData.$id, // This was likely the crash point
+      };
+
+      let dbPost;
+      if (post) {
+        dbPost = await appwriteService.updatePost(post.$id, cleanData);
+      } else {
+        dbPost = await appwriteService.createPost(cleanData);
+      }
+
+      // 2. Safety Check: Ensure dbPost exists before navigating
+      if (dbPost) {
+        navigate(`/post/${dbPost.$id}`);
+      }
+
+    } catch (error) {
+      console.log("Post submit error:", error);
     }
-    
-    fileId = file.$id;
-}
-
-    const cleanData = {
-      title: data.title,
-      slug: data.slug,
-      content: data.content,
-      status: data.status,
-      featuredImage: fileId,
-      userId: userData.$id,
-    };
-
-    let dbPost;
-
-    if (post) {
-      dbPost = await appwriteService.updatePost(post.$id, cleanData);
-    } else {
-      dbPost = await appwriteService.createPost(cleanData);
-    }
-
-    console.log("DB POST:", dbPost);
-
-    navigate(`/post/${dbPost.$id || dbPost.rowId}`);
-
-  } catch (error) {
-    console.log("Post submit error:", error);
-  }
-};
+  };
 
 
 
