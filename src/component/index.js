@@ -7,7 +7,7 @@ import RTE from "./RTE";
 import SignUp from "./SignUp"
 import  Login  from "./Login.jsx";
 import  PostForm from "./post-form/PostForm"
-import PostCard from "./PostCard";
+import PostCard from "./PostCard.jsx";
 import AuthLayout from "./AuthLayout";
 import Button from "./Button";
 import Input from "./Input";
