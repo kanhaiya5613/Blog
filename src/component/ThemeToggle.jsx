@@ -8,7 +8,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={() => dispatch(toggleTheme())}
-      className={`bg-gray-700 dark:bg-gray-200 text-gray-100 px-2 py-2 rounded-full transition ml-3 mr-3 ${isDark ? "bg-gray-700 text-white" : ""}`}
+      className={`bg-gray-700 dark:bg-gray-200 text-gray-100 px-2 py-2 rounded-full transition ml-3 mr-3 ${isDark ? "bg-gray-700" : ""}`}
     >
       {mode === "dark" ? "☀" : "🌙"}
     </button>
