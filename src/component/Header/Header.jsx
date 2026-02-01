@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Container, Logo, LogoutBtn } from "../index.js";
 import { Link, useNavigate } from "react-router-dom";
@@ -7,8 +7,8 @@ import ThemeToggle from "../ThemeToggle.jsx";
 export default function Header() {
   const authStatus = useSelector((state) => state.auth.status);
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  // redirect when auth changes
   useEffect(() => {
     if (authStatus) {
       navigate("/all-posts");
@@ -24,23 +24,24 @@ export default function Header() {
   ];
 
   return (
-    <header className="py-3 shadow bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-colors">
+    <header className="py-3 shadow bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
       <Container>
-        <nav className="flex items-center">
-          <div className="mr-4">
-            <Link to="/">
-              <Logo width="100px" />
-            </Link>
-          </div>
+        <nav className="flex items-center justify-between">
 
-          <ul className="flex ml-auto items-center space-x-2">
+          {/* Logo */}
+          <Link to="/">
+            <Logo width="100px" />
+          </Link>
+
+          {/* Desktop Menu */}
+          <ul className="hidden md:flex items-center space-x-2">
             {navItems.map(
               (item) =>
                 item.active && (
                   <li key={item.name}>
                     <button
                       onClick={() => navigate(item.slug)}
-                      className="inline-block px-4 py-2 rounded-full transition bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600"
+                      className="px-4 py-2 rounded-full bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600"
                     >
                       {item.name}
                     </button>
@@ -48,18 +49,50 @@ export default function Header() {
                 )
             )}
 
-            {authStatus && (
-              <li>
-                <LogoutBtn />
-              </li>
+            {authStatus && <LogoutBtn />}
+
+            <ThemeToggle />
+          </ul>
+
+          {/* Mobile Hamburger */}
+          <div>
+            <ThemeToggle />
+            <button
+              className="md:hidden text-2xl"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              ☰
+            </button>
+            </div>
+        </nav>
+
+        {/* Mobile Menu */}
+        {menuOpen && (
+          <ul className="md:hidden mt-4 space-y-2">
+
+            {navItems.map(
+              (item) =>
+                item.active && (
+                  <li key={item.name}>
+                    <button
+                      onClick={() => {
+                        navigate(item.slug);
+                        setMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 rounded bg-gray-300 dark:bg-gray-700"
+                    >
+                      {item.name}
+                    </button>
+                  </li>
+                )
             )}
 
-            {/* Theme Toggle */}
-            <li>
-              <ThemeToggle />
-            </li>
+            {authStatus && <LogoutBtn />}
+
+
           </ul>
-        </nav>
+        )}
+
       </Container>
     </header>
   );
