@@ -55,7 +55,7 @@ export default function Header() {
           </ul>
 
           {/* Mobile Hamburger */}
-          <div>
+          <div className="md:hidden text-2xl">
             <ThemeToggle />
             <button
               className="md:hidden text-2xl"
