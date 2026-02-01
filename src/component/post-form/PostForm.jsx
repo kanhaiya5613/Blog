@@ -18,12 +18,15 @@ export default function PostForm({ post }) {
 
   const navigate = useNavigate();
   const userData = useSelector((state) => state.auth.userData);
-  
-const submit = async (data) => {
+  const mode = useSelector((state) => state.theme.mode);
+
+  const isDark = mode === "dark";
+  //console.log("PostForm Redux user:", userData);
+
+  const submit = async (data) => {
     try {
-      // 1. Safety Check: Ensure userData exists before proceeding
-      if (!userData) {
-        console.error("Submit failed: No userData found. Are you logged in?");
+      if (!userData){
+        //console.log("Userdata is undefined")
         return;
       }
 
@@ -45,7 +48,7 @@ const submit = async (data) => {
         content: data.content,
         status: data.status,
         featuredImage: fileId,
-        userId: userData.$id, // This was likely the crash point
+        userId: userData.$id,
       };
 
       let dbPost;
@@ -55,18 +58,11 @@ const submit = async (data) => {
         dbPost = await appwriteService.createPost(cleanData);
       }
 
-      // 2. Safety Check: Ensure dbPost exists before navigating
-      if (dbPost) {
-        navigate(`/post/${dbPost.$id}`);
-      }
-
+      if (dbPost) navigate(`/post/${dbPost.$id}`);
     } catch (error) {
       console.log("Post submit error:", error);
     }
   };
-
-
-
 
   const slugTransform = useCallback((value) => {
     if (value && typeof value === "string")
@@ -91,19 +87,25 @@ const submit = async (data) => {
   }, [watch, slugTransform, setValue]);
 
   return (
-    <form onSubmit={handleSubmit(submit)} className="flex flex-wrap">
+    <form
+      onSubmit={handleSubmit(submit)}
+      className={`flex flex-wrap p-4 rounded-lg transition-all ${
+        isDark ? "bg-gray-800 text-gray-100" : "bg-white text-black"
+      }`}
+    >
+      {/* LEFT */}
       <div className="w-2/3 px-2">
         <Input
           label="Title"
           placeholder="Title"
-          className="mb-4"
+          className={`mb-4 ${isDark ? "bg-gray-700 text-white" : ""}`}
           {...register("title", { required: true })}
         />
 
         <Input
           label="Slug"
           placeholder="Slug"
-          className="mb-4"
+          className={`mb-4 ${isDark ? "bg-gray-700 text-white" : ""}`}
           {...register("slug", { required: true })}
           onChange={(e) =>
             setValue("slug", slugTransform(e.target.value), {
@@ -124,7 +126,7 @@ const submit = async (data) => {
         <Input
           label="Featured Image"
           type="file"
-          className="mb-4"
+          className={`mb-4 ${isDark ? "bg-gray-700 text-white" : ""}`}
           accept="image/png, image/jpg, image/jpeg, image/gif"
           {...register("image", { required: !post })}
         />
@@ -140,11 +142,16 @@ const submit = async (data) => {
         <Select
           options={["active", "inactive"]}
           label="Status"
-          className="mb-4"
+          className={`mb-4 ${isDark ? "bg-gray-700 text-white" : ""}`}
           {...register("status", { required: true })}
         />
 
-        <Button type="submit" className="w-full">
+        <Button
+          type="submit"
+          className={`w-full ${
+            isDark ? "bg-indigo-600 text-white" : "bg-black text-white"
+          }`}
+        >
           {post ? "Update" : "Submit"}
         </Button>
       </div>

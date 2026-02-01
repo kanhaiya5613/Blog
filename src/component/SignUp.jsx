@@ -5,11 +5,12 @@ import authService from "../appwrite/auth";
 import { login } from "../store/authSlice";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
-
+import { useSelector } from "react-redux";
 function SignUp() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const mode = useSelector((state)=>state.theme.mode);
+  const isDark = mode ==="dark"
   const {
     register,
     handleSubmit,
@@ -45,11 +46,19 @@ function SignUp() {
   };
 
   return (
-    <div className="flex items-center justify-center">
-      <div className="mx-auto w-full max-w-lg bg-gray-100 rounded-xl p-10 border border-black/10">
+    <div className={`flex items-center justify-center w-full min-h-screen transition-all
+        ${isDark ? "bg-gray-900" : "bg-gray-100"}
+      `}
+    >
+      <div
+        className={`mx-auto w-full max-w-lg rounded-xl p-10 border transition-all
+          ${isDark
+            ? "bg-gray-800 text-gray-100 border-gray-700"
+            : "bg-white text-black border-gray-200"}
+        `}>
 
         <div className="mb-2 flex justify-center">
-          <span className="inline-block w-full max-w-[100px]">
+          <span className="inline-block w-full max-w-100px">
             <Logo width="100%" />
           </span>
         </div>

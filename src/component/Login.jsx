@@ -2,14 +2,15 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login as authLogin } from "../store/authSlice";
 import { Button, Input, Logo } from "./index";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import authService from "../appwrite/auth";
 import { useForm } from "react-hook-form";
 
 function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const mode = useSelector((state)=>state.theme.mode);
+  const isDark = mode ==="dark"
   const {
     register,
     handleSubmit,
@@ -45,9 +46,18 @@ function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center w-full">
-      <div className="mx-auto w-full max-w-lg rounded-xl bg-white p-10 border">
-
+    <div
+      className={`flex items-center justify-center w-full min-h-screen transition-all
+        ${isDark ? "bg-gray-900" : "bg-gray-100"}
+      `}
+    >
+      <div
+        className={`mx-auto w-full max-w-lg rounded-xl p-10 border transition-all
+          ${isDark
+            ? "bg-gray-800 text-gray-100 border-gray-700"
+            : "bg-white text-black border-gray-200"}
+        `}
+      >
         <div className="mb-2 flex justify-center">
           <span className="inline-block w-full max-w-[100px]">
             <Logo width="100%" />
@@ -58,7 +68,11 @@ function Login() {
           Sign in to your Account
         </h2>
 
-        <p className="mt-2 text-center text-base text-black/60">
+        <p
+          className={`mt-2 text-center text-base ${
+            isDark ? "text-gray-300" : "text-black/60"
+          }`}
+        >
           Don&apos;t have any account?&nbsp;
           <Link
             to="/signup"
@@ -68,7 +82,6 @@ function Login() {
           </Link>
         </p>
 
-        {/* Backend error */}
         {error && (
           <div className="bg-red-100 text-red-700 px-4 py-2 rounded mt-6 text-center">
             {error}
@@ -77,11 +90,11 @@ function Login() {
 
         <form onSubmit={handleSubmit(login)} className="mt-8">
           <div className="space-y-5">
-
             <Input
               label="Email"
               placeholder="Enter your email"
               type="email"
+              isDark={isDark}
               {...register("email", {
                 required: "Email is required",
                 pattern: {
@@ -100,24 +113,25 @@ function Login() {
               label="Password"
               placeholder="Enter your password"
               type="password"
+              isDark={isDark}
               {...register("password", {
                 required: "Password is required",
               })}
             />
 
             {errors.password && (
-              <p className="text-red-600 text-sm">{errors.password.message}</p>
+              <p className="text-red-600 text-sm">
+                {errors.password.message}
+              </p>
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>
-
           </div>
         </form>
       </div>
     </div>
   );
 }
-
 export default Login;

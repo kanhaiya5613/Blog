@@ -1,15 +1,16 @@
 import React from "react";
 import appwriteService from "../appwrite/config";
 import { Link } from "react-router-dom";
-
+import { useSelector } from "react-redux";
 function PostCard({ $id: id, title, featuredImage }) {
 
   if (!id) return null;
   //console.log(featuredImage);
-  
+  const mode = useSelector((state)=>state.theme.mode)
+  const isDark = mode === "dark";
   return (
     <Link to={`/post/${id}`} className="w-full block h-full">
-      <div className=" h-full bg-gray-100 rounded-xl p-4 hover:shadow-lg transition flex flex-col">
+      <div className={`h-full bg-gray-100 rounded-xl p-4 hover:shadow-lg transition flex flex-col ${isDark ?"bg-gray-800 text-gray-100" :"" }`}>
                 <div className="w-full aspect-video mb-4 overflow-hidden h-60 rounded-xl">
           {featuredImage ? (
             <img
